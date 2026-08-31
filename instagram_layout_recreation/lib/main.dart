@@ -1,234 +1,359 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const InstagramLayoutRecreationApp());
+  runApp(const MyApp());
 }
 
-class InstagramLayoutRecreationApp extends StatelessWidget {
-  const InstagramLayoutRecreationApp({super.key});
-  @override
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Instagram Layout Recreation',
       debugShowCheckedModeBanner: false,
+      title: 'Dashboard',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          elevation: 0.5,
-        ),
+        primarySwatch: Colors.indigo,
       ),
-      home: const InstagramHomePage(),
+      home: const Dashboard(),
     );
   }
 }
 
-class InstagramHomePage extends StatelessWidget {
-  const InstagramHomePage({super.key});
-  static const posterText =
-      'The newest photo update on a bright weekend exploring downtown vibes.';
-  @override
+class Dashboard extends StatefulWidget {
+  const Dashboard({super.key});
+
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  int selectedIndex = 0;
+
+  final List<String> menuItems = [
+    'Dashboard',
+    'Settings',
+    'About',
+    'Logout',
+  ];
+
+  final List<IconData> menuIcons = [
+    Icons.dashboard,
+    Icons.settings,
+    Icons.info,
+    Icons.logout,
+  ];
+
+  final List<String> labels = [
+    'Total Sales',
+    'New Orders',
+    'Visitors',
+    'Conversion',
+  ];
+
+  final List<String> values = [
+    '\$12,480',
+    '164',
+    '3,204',
+    '4.8%',
+  ];
+
+  final List<String> activities = [
+    'Recent Activity #1',
+    'Recent Activity #2',
+    'Recent Activity #3',
+    'Recent Activity #4',
+    'Recent Activity #5',
+  ];
+
+  @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double width = constraints.maxWidth;
+
+        if (width >= 1024) {
+          return desktopLayout();
+        } else if (width >= 600) {
+          return tabletLayout();
+        } else {
+          return mobileLayout();
+        }
+      },
+    );
+  }
+
+  // ---------------- MOBILE ----------------
+
+  Widget mobileLayout() {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+      ),
+
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            const _InstagramAppBar(),
-            const SizedBox(height: 12),
-            const _StoriesRow(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: const [
-                  _PostCard(),
-                  SizedBox(height: 16),
-                  _PostCard(),
-                ],
+            const DrawerHeader(
+              child: Icon(
+                Icons.favorite,
+                size: 50,
               ),
             ),
+
+            for (int i = 0; i < menuItems.length; i++)
+              ListTile(
+                leading: Icon(menuIcons[i]),
+                title: Text(menuItems[i]),
+                selected: selectedIndex == i,
+                onTap: () {
+                  setState(() {
+                    selectedIndex = i;
+                  });
+
+                  Navigator.pop(context);
+                },
+              ),
           ],
         ),
       ),
-    );
-  }
-}
 
-class _InstagramAppBar extends StatelessWidget {
-  const _InstagramAppBar();
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: const [
-          Text(
-            'Instagram',
-            style: TextStyle(
-              fontFamily: 'Roboto',
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.2,
-            ),
+      body: dashboardBody(2),
+
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex > 2 ? 0 : selectedIndex,
+        onTap: (index) {
+          setState(() {
+            selectedIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
           ),
-          Spacer(),
-          Icon(Icons.favorite_border, size: 28),
-          SizedBox(width: 18),
-          Icon(Icons.send, size: 28),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info),
+            label: 'About',
+          ),
         ],
       ),
     );
   }
-}
 
-class _StoriesRow extends StatelessWidget {
-  const _StoriesRow();
-  @override
-  Widget build(BuildContext context) {
-    final stories = ['Your Story', 'davao', 'kani', 'rowan', 'temp'];
-    return SizedBox(
-      height: 120,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        scrollDirection: Axis.horizontal,
-        itemCount: stories.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          return _StoryBubble(label: stories[index]);
-        },
+  // ---------------- TABLET ----------------
+
+  Widget tabletLayout() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dashboard'),
       ),
-    );
-  }
-}
 
-class _StoryBubble extends StatelessWidget {
-  const _StoryBubble({required this.label});
-  final String label;
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [Color(0xFFDE0046), Color(0xFFF7A34B)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: const Padding(
-            padding: EdgeInsets.all(4),
-            child: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.black54, size: 34),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: 72,
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 12),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _PostCard extends StatelessWidget {
-  const _PostCard();
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            const CircleAvatar(
-              radius: 20,
-              backgroundColor: Color(0xFFEFEFEF),
-              child: Icon(Icons.person, color: Colors.black54),
+            const DrawerHeader(
+              child: Icon(
+                Icons.favorite,
+                size: 50,
+              ),
             ),
-            const SizedBox(width: 12),
-            const Expanded(
+
+            for (int i = 0; i < menuItems.length; i++)
+              ListTile(
+                leading: Icon(menuIcons[i]),
+                title: Text(menuItems[i]),
+                selected: selectedIndex == i,
+                onTap: () {
+                  setState(() {
+                    selectedIndex = i;
+                  });
+
+                  Navigator.pop(context);
+                },
+              ),
+          ],
+        ),
+      ),
+
+      body: dashboardBody(4),
+    );
+  }
+
+  // ---------------- DESKTOP ----------------
+
+  Widget desktopLayout() {
+    return Scaffold(
+      body: SafeArea(
+        child: Row(
+          children: [
+
+            // Sidebar
+            Container(
+              width: 220,
+              color: Colors.grey[200],
+
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'sibyl_davao',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+
+                  const SizedBox(height: 30),
+
+                  const Icon(
+                    Icons.favorite,
+                    size: 50,
                   ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Makati, Philippines',
-                    style: TextStyle(color: Colors.black54, fontSize: 12),
-                  ),
+
+                  const SizedBox(height: 30),
+
+                  for (int i = 0; i < menuItems.length; i++)
+                    ListTile(
+                      leading: Icon(menuIcons[i]),
+                      title: Text(menuItems[i]),
+                      selected: selectedIndex == i,
+
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = i;
+                        });
+                      },
+                    ),
                 ],
               ),
             ),
-            const Icon(Icons.more_horiz),
+
+            // Dashboard
+            Expanded(
+              flex: 3,
+              child: dashboardBody(4),
+            ),
+
+            // Quick Actions
+            Expanded(
+              flex: 1,
+              child: Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
+
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+
+                    const Text(
+                      'Quick Actions',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.add),
+                      label: const Text('New Report'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 12),
-        Container(
-          height: 320,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(20),
+      ),
+    );
+  }
+
+  // ---------------- DASHBOARD BODY ----------------
+
+  Widget dashboardBody(int columns) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+
+      children: [
+
+        // Statistic cards
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+
+          itemCount: labels.length,
+
+          gridDelegate:
+              SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.3,
           ),
-          alignment: Alignment.center,
-          child: const Icon(Icons.image, size: 80, color: Colors.white70),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: const [
-            Icon(Icons.favorite_border, size: 28),
-            SizedBox(width: 18),
-            Icon(Icons.mode_comment_outlined, size: 28),
-            SizedBox(width: 18),
-            Icon(Icons.send_outlined, size: 28),
-            Spacer(),
-            Icon(Icons.bookmark_border, size: 28),
-          ],
-        ),
-        const SizedBox(height: 12),
-        const Text(
-          '1,280 likes',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        RichText(
-          text: const TextSpan(
-            style: TextStyle(color: Colors.black87),
-            children: [
-              TextSpan(
-                text: 'sibyl_davao ',
-                style: TextStyle(fontWeight: FontWeight.bold),
+
+          itemBuilder: (context, index) {
+            return Container(
+              padding: const EdgeInsets.all(16),
+
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
               ),
-              TextSpan(
-                text: 'Enjoying the weekend around the city. Sunshine and weekend plans with the best crew!',
+
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+
+                children: [
+
+                  Text(
+                    values[index],
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    labels[index],
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            );
+          },
+        ),
+
+        const SizedBox(height: 20),
+
+        // Recent activities
+        for (String activity in activities)
+          Container(
+            height: 64,
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
+
+            alignment: Alignment.centerLeft,
+
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(10),
+            ),
+
+            child: Text(activity),
           ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'View all 42 comments',
-          style: TextStyle(color: Colors.black54),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          '2 hours ago',
-          style: TextStyle(color: Colors.black54, fontSize: 12),
-        ),
       ],
     );
   }
