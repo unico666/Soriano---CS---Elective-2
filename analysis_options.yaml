@@ -7,3 +7,4 @@ linter:
 analyzer:
   exclude:
     - build/**
+    - web/**
